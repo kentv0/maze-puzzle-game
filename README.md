@@ -19,13 +19,13 @@ Get Started
 ```
     $ java MazeSolver
 ```
-    Expected output:
+### 4. Expected output
 ![](https://raw.githubusercontent.com/kentv0/maze-puzzle-game/master/output.jpg "Expected output")
-### 4. Clean
+### 5. Clean
 ```
     $ rm -rf data_structures/*.class ./*.class
 ```
-### 5. Debug
+### 6. Debug
 * Ignore the following output during compile
     ```
     Note: Some input files use unchecked or unsafe operations.
