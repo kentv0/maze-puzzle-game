@@ -1,20 +1,26 @@
-/*	Kent Vo
-	CSSC0049 
-	MazeSolver.java
-*/
+import data_structures.LinearList;
+import data_structures.LinearListADT;
+import data_structures.Queue;
+import data_structures.Stack;
 
-import data_structures.*;
-
+/**
+ * The MazeSolver Class for {@link MazeGrid.class} using the doubly linked list
+ * implementation with stack and queue.
+ *
+ * @version     0.1.0 01 Nov 2015
+ * @author      Kent Vo
+ */
 public class MazeSolver {
+/* This Class finds the shortest route (if one exists) through a randomly
+ * generated maze. */
+
 	private MazeGrid grid;
-	private Queue<GridCell> queue;
-	private Stack<GridCell> stack;
+	private Queue<GridCell> queue = new Queue<GridCell>();
+	private Stack<GridCell> stack = new Stack<GridCell>();
 	private int dimension;
 	
-	public MazeSolver(int dimension){
+	public MazeSolver(int dimension) {
 		grid = new MazeGrid(this, dimension);
-		queue = new Queue<GridCell>();
-		stack = new Stack<GridCell>();
 		this.dimension = dimension;
 	}
 	
@@ -29,43 +35,42 @@ public class MazeSolver {
 //		    mark each adjacent neighboring cell and enqueue it
 //		    }
 		
-	public void mark(){
+	public void mark() {
 		//Enqueue the start cell
-		GridCell originCell = grid.getCell(0,0);
+		GridCell originCell = grid.getCell(0, 0);
 		originCell.setDistance(0);
 		queue.enqueue(originCell);
 		grid.markDistance(originCell);
-		
-		while(!queue.isEmpty()){
+		while(!queue.isEmpty()) {
 			GridCell currentCell = queue.dequeue();
 			int x = currentCell.getX();
 			int y = currentCell.getY();
 			int distance = currentCell.getDistance();
 			
 			//Enqueue neighboring cell
-			GridCell nextCell = grid.getCell(x,y+1);
-			if (grid.isValidMove(nextCell) && !nextCell.wasVisited()){
+			GridCell nextCell = grid.getCell(x, y + 1);
+			if((grid.isValidMove(nextCell)) && (!nextCell.wasVisited())) {
 				nextCell.setDistance(distance + 1);
 				grid.markDistance(nextCell);
 				queue.enqueue(nextCell);
 			}
-				
-			nextCell = grid.getCell(x+1,y);
-			if (grid.isValidMove(nextCell) && !nextCell.wasVisited()){
+			nextCell = grid.getCell(x + 1, y);
+
+			if((grid.isValidMove(nextCell)) && (!nextCell.wasVisited())) {
 				nextCell.setDistance(distance + 1);
 				grid.markDistance(nextCell);
 				queue.enqueue(nextCell);
 			}
-				
-			nextCell = grid.getCell(x,y-1);
-			if (grid.isValidMove(nextCell) && !nextCell.wasVisited()){
+			nextCell = grid.getCell(x, y - 1);
+
+			if((grid.isValidMove(nextCell)) && (!nextCell.wasVisited())) {
 				nextCell.setDistance(distance + 1);
 				grid.markDistance(nextCell);
 				queue.enqueue(nextCell);
 			}
-				
-			nextCell = grid.getCell(x-1,y);
-			if (grid.isValidMove(nextCell) && !nextCell.wasVisited()){
+			nextCell = grid.getCell(x - 1, y);
+
+			if((grid.isValidMove(nextCell)) && (!nextCell.wasVisited())) {
 				nextCell.setDistance(distance + 1);
 				grid.markDistance(nextCell);
 				queue.enqueue(nextCell);
@@ -87,60 +92,59 @@ public class MazeSolver {
 //	    pop grid cell off the stack and mark it
 //	    }
 	
-	public boolean move(){
+	public boolean move() {
 		//Start from 0,0 so the last cell is d-1,d-1
 		GridCell exitCell = grid.getCell(dimension - 1, dimension - 1);
-		if (exitCell.getDistance() == -1){
+
+		if(exitCell.getDistance() == -1) {
 			return false;
 		}
-		
 		stack.push(exitCell);
 		
-		while(stack.peek().getDistance() != 0){
+		while(stack.peek().getDistance() != 0) {
 			GridCell currentCell = stack.peek();
 			int x = currentCell.getX();
 			int y = currentCell.getY();
 			int distance = currentCell.getDistance();
 			
 			//Continue Keyword skips the current loop but does not end the loop
-			GridCell nextCell = grid.getCell(x, y+1);
-			if ((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)){
+			GridCell nextCell = grid.getCell(x, y + 1);
+			if((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)) {
 				stack.push(nextCell);
 				continue;
 			}
-			
-			nextCell = grid.getCell(x+1, y);
-			if ((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)){
+			nextCell = grid.getCell(x + 1, y);
+
+			if((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)) {
 				stack.push(nextCell);
 				continue;
 			}
-			
-			nextCell = grid.getCell(x, y-1);
-			if ((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)){
+			nextCell = grid.getCell(x, y - 1);
+
+			if((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)) {
 				stack.push(nextCell);
 				continue;
 			}
-			
-			nextCell = grid.getCell(x-1, y);
-			if ((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)){
+			nextCell = grid.getCell(x - 1, y);
+
+			if((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)) {
 				stack.push(nextCell);
 				continue;
 			}
 		}
-		
-		while(!stack.isEmpty()){
+
+		while(!stack.isEmpty()) {
 			grid.markMove(stack.pop());
 		}
-		
 		return true;
-	}	
+	}
 
-	public void reset(){
+	public void reset() {
 		queue.makeEmpty();
 		stack.makeEmpty();
 	}
 
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		new MazeSolver(50);
 	}
 }

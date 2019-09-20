@@ -4,28 +4,37 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * The LinearList implementation Class for {@link LinearListADT.class}.
+ *
+ * @version     0.1.0 01 Oct 2015
+ * @author      Kent Vo
+ */
 public class LinearList<E> implements LinearListADT<E> {
-    private Node head;
-    private Node tail;
-    private int N;
+/* A doubly linked list implementation for the LinearListADT interface. */
+
+    private Node front = new Node((E) null);
+    private Node rear = new Node((E) null);
+    private int currentSize = 0;
  
+    /**
+     * Set the default front and rear node pointers to eachother.
+     */
     public LinearList() {
-        head = new Node((E) null);
-        tail = new Node((E) null);
-        head.next = tail;
-        tail.prev = head;
-        N = 0;
+        front.next = rear;
+        rear.prev = front;
     }
  
+    /**
+     * Create the doubly linked list node.
+     */
     protected class Node {
         E item;
-        Node next;
-        Node prev;
+        Node next = null;
+        Node prev = null;
    
         public Node(E element) {
             item = element;
-            next = null;
-            prev = null;
         }
  
         public Node(E element, Node prevNode, Node nextNode) {
@@ -45,167 +54,212 @@ public class LinearList<E> implements LinearListADT<E> {
         }
     }
  
-    //  Adds the Object obj to the beginning of list and returns true if the list is not full.
-    //  returns false and aborts the insertion if the list is full.
+    /**
+     * Add an object to the beginning of the list.
+     *
+     * @param obj the object to add
+     * @return false if list is full; otherwise true
+     * @throws NullPointerException if object is null
+     */
     public boolean addFirst(E obj) {
         if(isFull()) {
             return false;
         } else if(obj == ((E) null)) {
             throw new NullPointerException("data is null");
         } else {
-            Node newNode = new Node(obj, head, head.next);
-            N++;
+            Node newNode = new Node(obj, front, front.next);
+            currentSize++;
             return true;
         }
     }
  
-    //  Adds the Object obj to the end of list and returns true if the list is not full.
-    //  returns false and aborts the insertion if the list is full..  
+    /**
+     * Add an object to the end of the list.
+     *
+     * @param obj the object to add
+     * @return false if list is full; otherwise true
+     */
     public boolean addLast(E obj) {
         if(isFull()) {
             return false;
         } else if(obj == (E) (null)) {
             return false;
         } else {
-            Node newNode = new Node(obj,tail.prev, tail);
-            N++;
+            Node newNode = new Node(obj, rear.prev, rear);
+            currentSize++;
             return true;
         }
     }
 
-    //  Removes and returns the parameter object obj in first position in list if the list is not empty,  
-    //  null if the list is empty. 
+    /**
+     * Remove the object at the beginning of the list.
+     *
+     * @return the removed object; otherwise null if list is empty
+     */
     public E removeFirst() {
         if(isEmpty()) {
             return ((E)null);
         } else {
-            E item = head.next.item;
-            head.next.next.prev = head;
-            head.next = head.next.next; 
-            N--;
+            E item = front.next.item;
+            front.next.next.prev = front;
+            front.next = front.next.next; 
+            currentSize--;
             return item;
         }
     }
  
-    //  Removes and returns the parameter object obj in last position in list if the list is not empty, 
-    //  null if the list is empty. 
+    /**
+    * Remove the object at the end of the list.
+    *
+    * @return the removed object; otherwise null if list is empty
+    */
     public E removeLast() {
         if(isEmpty()) {
             return ((E) null);
         } else {
-            E item = tail.prev.item;
-            tail.prev.prev.next = tail;
-            tail.prev = tail.prev.prev; 
-            N--;
+            E item = rear.prev.item;
+            rear.prev.prev.next = rear;
+            rear.prev = rear.prev.prev; 
+            currentSize--;
             return item;
         }
     }
  
-    //  Removes and returns the parameter object obj from the list if the list contains it, null otherwise.
-    //  The ordering of the list is preserved.  The list may contain duplicate elements.  This method
-    //  removes and returns the first matching element found when traversing the list from first position.
-    //  Note that you may have to shift elements to fill in the slot where the deleted element was located.
+    /**
+     * Remove a specific object from the list.
+     *
+     * @param obj the object to remove
+     * @return the removed object; otherwise null
+     */
     public E remove(E obj) {
-        Node current;
+        Node tempNode = front.next;
+
         if(obj == ((E)null)) {
             return null;
-        }
-        if(isEmpty()) {
+        } else if(isEmpty()) {
             return null;
-        }
-        if(contains(obj)) {
-            current = head.next;
-            while(current != null) {
-                if(obj != null && ((Comparable<E>)(current.item)).compareTo(obj) == 0) {
-                    current.remove();
-                    N--;
+        } else if(contains(obj)) {
+            while(tempNode != null) {
+                if(obj != null && ((Comparable<E>)(tempNode.item)).compareTo(obj) == 0) {
+                    tempNode.remove();
+                    currentSize--;
                     return obj;
+                } else {
+                    tempNode = tempNode.next;
                 }
-                current = current.next;
             }
         }
-        return null;   
+        return null;
     }
 
-    //  Returns the first element in the list, null if the list is empty.
-    //  The list is not modified.
+    /**
+     * Return the object at the beginning of the list.
+     *
+     * @return the object at the beginning of the list
+     */
     public E peekFirst() {
-        if(isEmpty()) {
-            return null;
-        }
-        return head.next.item;
+        return (isEmpty() ? null : front.next.item);
     }
  
-    //  Returns the last element in the list, null if the list is empty.
-    //  The list is not modified.
+    /**
+     * Return the object at the end of the list.
+     *
+     * @return the object at the end of the list
+     */
     public E peekLast() {
-        if(isEmpty()) {
-            return null;
-        }
-        return tail.prev.item;
+        return (isEmpty() ? null : rear.prev.item);
     }
  
-    //  Returns true if the parameter object obj is in the list, false otherwise.
-    //  The list is not modified.
+    /**
+     * Verify a specific object exist in the list.
+     *
+     * @param obj the specified object to verify
+     * @return true if the object is found; otherwise false
+     */
     public boolean contains(E obj) { 
-        return (find(obj) != null);
+        return (find(obj) != null ? true : false);
     }
  
-    //  Returns the element matching obj if it is in the list, null otherwise.
-    //  In the case of duplicates, this method returns the element closest to front.
-    //  The list is not modified.
+    /**
+     * Find the first occurence of a specific object in the list.
+     *
+     * @param obj the specified object to find
+     * @return the found object; otherwise null
+     */
     public E find(E obj) {
-        Node current = head.next;
+        Node tempNode = front.next;
+
         if(obj == ((E)null)) {
             return null;
         }
-        while(current.item != null) {
-            if(((Comparable<E>)(current.item)).compareTo(obj) == 0) {
+
+        while(tempNode.item != null) {
+
+            if(((Comparable<E>)(tempNode.item)).compareTo(obj) == 0) {
                 return obj;
             }
-            current = current.next;
+            tempNode = tempNode.next;
         }
         return ((E)null);
     }
-        
- 
-    //  The list is returned to an empty state.
+
+    /**
+     * Return the list to an empty state.
+     */
     public void clear() {
-        N = 0;
-        head.next = tail;
-        tail.prev = head;
+        currentSize = 0;
+        front.next = rear;
+        rear.prev = front;
     }
  
-    //  Returns true if the list is empty, otherwise false
+    /**
+     * Verify if the list is empty.
+     *
+     * @return true if list is empty; otherwise false
+     */
     public boolean isEmpty() {
-        return (N == 0);
+        return (currentSize == 0);
     }
-      
-    //  Returns true if the list is full, otherwise false
+
+    /**
+     * Verify if the list is full.
+     *
+     * @deprecated since linked list allocate memory dynamically
+     */
     public boolean isFull() {
         return false;
     }   
  
-    //  Returns the number of Objects currently in the list.
+    /**
+     * Return the number of object in the list.
+     *
+     * @return the integer value for the current size of the list
+     */
     public int size() {
-        return N;
+        return currentSize;
     }
  
-    //  Returns an Iterator of the values in the list, presented in
-    //  the same order as the underlying order of the list. (front first, rear last)
+    /**
+     * Return the iterator.
+     *
+     * @return the iterator
+     */
     public Iterator<E> iterator() {
-        return new LinearListIterator();
+        return new IteratorHelper();
     }
  
-    private class LinearListIterator implements Iterator<E> {
-        private Node left, right;
-        private int idx;
+    /**
+     * Implementation for the iterator of the object in the list.
+     *
+     * @throws ConcurrentModificationException if iterating pass current size
+     * @throws NoSuchElementException if object does not exist
+     */
+    private class IteratorHelper implements Iterator<E> {
+        private Node left = front;
+        private Node right = left.next;
+        private int index = 0;
  
-        public LinearListIterator() {
-            left = head;
-            right = left.next;
-            idx = 0;
-        }
+        public IteratorHelper() {}
  
         public boolean hasNext() {
             return (right.item != (E) null);
@@ -217,24 +271,26 @@ public class LinearList<E> implements LinearListADT<E> {
  
         public E next() {
             E item1;
-            if(idx >= N) throw new ConcurrentModificationException();
-            if(!hasNext()) {
+
+            if(index >= currentSize) {
+                throw new ConcurrentModificationException();
+            } else if(!hasNext()) {
                 throw new NoSuchElementException("No such element in iterator next");
             } else {
                 item1 = right.item;
                 left = right;
                 right = right.next;
-                idx++;
+                index++;
             }
             return item1;
         }
     
         public void remove() {
             if(right != null) {
-                Node tmp = right;
+                Node tempNode = right;
                 right = right.next;
-                tmp.remove();
-                N--;
+                tempNode.remove();
+                currentSize--;
             }
         }
     }
