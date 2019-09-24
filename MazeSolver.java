@@ -19,35 +19,34 @@ public class MazeSolver {
 	private Stack<GridCell> stack = new Stack<GridCell>();
 	private int dimension;
 	
+    /**
+     * Set the number of GridCell for the {@link MazeGrid.class}.
+     *
+     * @param dimension the number of GridCell across and down.
+     */
 	public MazeSolver(int dimension) {
 		grid = new MazeGrid(this, dimension);
 		this.dimension = dimension;
 	}
 	
-//	Solving the puzzle is a two step process. First, you must flag each GridCell that is reachable with its distance from the origin. 
-//	Then starting at the exit point and working back toward the origin, you select the available cell with the minimum distance. 
-//	
-//	For the first part, you will use a breadth first traveral algorithm to visit and mark each cell:
-//		enqueue cell(0,0)
-//		while( the queue is not empty ) {
-//		    dequeue a GridCell from the queue.
-//			must flag each GridCell that is reachable with its distance from the origin.
-//		    mark each adjacent neighboring cell and enqueue it
-//		    }
-		
+    /**
+     * Mark each reachable and available GridCell.
+     */
 	public void mark() {
-		//Enqueue the start cell
+		// Enqueue the origin GridCell at the yellow starting point.
 		GridCell originCell = grid.getCell(0, 0);
 		originCell.setDistance(0);
 		queue.enqueue(originCell);
 		grid.markDistance(originCell);
 		while(!queue.isEmpty()) {
+            // Dequeue the current GridCell.
 			GridCell currentCell = queue.dequeue();
 			int x = currentCell.getX();
 			int y = currentCell.getY();
 			int distance = currentCell.getDistance();
 			
-			//Enqueue neighboring cell
+			/* Run the breadth first algorithm, marking the distance from the
+             * origin in each adjacent GridCell, then enqueue it. */
 			GridCell nextCell = grid.getCell(x, y + 1);
 			if((grid.isValidMove(nextCell)) && (!nextCell.wasVisited())) {
 				nextCell.setDistance(distance + 1);
@@ -78,36 +77,27 @@ public class MazeSolver {
 		}
 	}
 	
-//	For the second part, begin at the green exit point, then check each adjacent neighboring cell, 
-//	and push the one with minimum distance onto the stack. The stack then contains all of the cells in the shortest path:
-//
-//	distance = terminal_cell.getDistance();
-//	if(distance == -1) return false;  // unreachable, puzzle has no solution
-//	push terminal cell onto the stack
-//	while(distance != 0) {
-//	    get distance from each cell adjacent to the top of the stack
-//	    select the cell with smallest distance and push on the stack
-//	    }
-//	while( stack is not empty ) {
-//	    pop grid cell off the stack and mark it
-//	    }
-	
+    /**
+     * Push each GridCell with minimum distance onto the stack.
+     */
 	public boolean move() {
-		//Start from 0,0 so the last cell is d-1,d-1
+        // Start from the GridCell at the green exit point.
 		GridCell exitCell = grid.getCell(dimension - 1, dimension - 1);
-
+        
+        // Cannot solve puzzle with an unreachable exit.
 		if(exitCell.getDistance() == -1) {
 			return false;
 		}
 		stack.push(exitCell);
 		
 		while(stack.peek().getDistance() != 0) {
+            // Get distance of each GridCell adjacent to the top of the stack.
 			GridCell currentCell = stack.peek();
 			int x = currentCell.getX();
 			int y = currentCell.getY();
 			int distance = currentCell.getDistance();
 			
-			//Continue Keyword skips the current loop but does not end the loop
+            // Select GridCell with smallest distance and push onto the stack.
 			GridCell nextCell = grid.getCell(x, y + 1);
 			if((grid.isValidMove(nextCell)) && (nextCell.getDistance() < distance)) {
 				stack.push(nextCell);
@@ -133,12 +123,16 @@ public class MazeSolver {
 			}
 		}
 
+        // Pop the stack and mark all the GridCell in the shortest path.
 		while(!stack.isEmpty()) {
 			grid.markMove(stack.pop());
 		}
 		return true;
 	}
 
+    /**
+     * Return the stack and queue to an empty state.
+     */
 	public void reset() {
 		queue.makeEmpty();
 		stack.makeEmpty();
