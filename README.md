@@ -13,7 +13,7 @@ Get Started
 ### 2. Compile package
 ```
     $ cd maze-puzzle-game
-    $ javac data_structures/* ./*.java
+    $ javac ./*.java data_structures/*
 ```
 ### 3. Run MazeSolver
 ```
@@ -23,7 +23,7 @@ Get Started
 ![](https://raw.githubusercontent.com/kentv0/maze-puzzle-game/master/output.jpg "Expected output")
 ### 5. Clean
 ```
-    $ rm -rf data_structures/*.class ./*.class
+    $ rm -rf ./*.class data_structures/*.class
 ```
 ### 6. Debug
 * Ignore the following output during compile
